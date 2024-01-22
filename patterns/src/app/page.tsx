@@ -1,7 +1,8 @@
 "use client";
 
-import OledScreen from "@/lib/oled-screen";
 import { useState } from "react";
+import ControlPanel from "@/components/control-panel";
+import OledScreen from "@/components/oled-screen";
 
 export default function Home() {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -17,21 +18,7 @@ export default function Home() {
 
       <div className="flex flex-row p-2 flex-1">
         <div className="bg-yellow-400 flex-1 p-2">
-          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-            Left
-          </button>
-          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-2">
-            Right
-          </button>
-          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-2">
-            Forward
-          </button>
-          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-2">
-            Backward
-          </button>
-          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-2">
-            Screen smile :)
-          </button>
+          <ControlPanel />
         </div>
         <div className="bg-pink-400 flex-1">
           <OledScreen />
