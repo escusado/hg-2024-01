@@ -3,46 +3,50 @@
 import { FC, useRef, useState, useEffect } from "react";
 
 // 128 x 32 0s filled matrix
-const zerosScreen = Array.from({ length: 128 }, () => {
+const zerosScreen: (1 | 0)[][] = Array.from({ length: 128 }, () => {
   return Array.from({ length: 32 }, () => 0);
+  // return Array.from({ length: 32 }, () => (Math.random() > 0.5 ? 1 : 0));
 });
 
 const OledScreen: FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [screenModel, setScreenModel] = useState(zerosScreen);
+  const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
 
   useEffect(() => {
-    console.log("🧀>>> sup");
     if (canvasRef.current) {
       const canvas = canvasRef.current;
       const ctx = canvas.getContext("2d");
-
-      if (ctx) {
-        // background+frame
-        ctx.fillStyle = "black";
-        ctx.globalCompositeOperation = "destination-over";
-        ctx.fillStyle = "#333333";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.globalCompositeOperation = "source-over";
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = "#FF0000";
-        ctx.strokeRect(0, 0, canvas.width, canvas.height);
-
-        // draw pixels from model
-        screenModel.forEach((row, x) => {
-          row.forEach((pixel, y) => {
-            if (pixel) {
-              ctx.fillStyle = "white";
-              ctx.fillRect(x, y, 1, 1);
-            }
-          });
-        });
-      }
+      setContext(ctx);
     }
-  }, [canvasRef, screenModel]);
+  }, [canvasRef]);
+
+  useEffect(() => {
+    console.log("🧀>>> updateing");
+    if (context) {
+      // draw pixels from model
+      screenModel.forEach((row, x) => {
+        row.forEach((pixel, y) => {
+          context.fillStyle = pixel > 0 ? "white" : "black";
+          context.fillRect(x, y, 1, 1);
+        });
+      });
+
+      // background+frame
+      context.fillStyle = "#00000000";
+      context.globalCompositeOperation = "destination-over";
+      context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+      context.globalCompositeOperation = "source-over";
+      context.lineWidth = 2;
+      context.strokeStyle = "#FF000055";
+      context.strokeRect(0, 0, context.canvas.width, context.canvas.height);
+    }
+  }, [screenModel, context]);
 
   const handleExpressionClick = () => {
-    setScreenModel(addSmileyFace(1, 1, screenModel));
+    const randomX = Math.floor(Math.random() * 128);
+    const randomY = Math.floor(Math.random() * 32);
+    setScreenModel(addSmileyFace(randomX, randomY, [...screenModel]));
   };
 
   return (
@@ -63,7 +67,7 @@ const OledScreen: FC = () => {
   );
 };
 
-const addSmileyFace = (x: number, y: number, screenModel: number[][]) => {
+const addSmileyFace = (x: number, y: number, screenModel: (1 | 0)[][]) => {
   const face = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 1, 0, 1, 0, 0, 0],
@@ -91,7 +95,7 @@ const addSmileyFace = (x: number, y: number, screenModel: number[][]) => {
         const yIndex = y + j;
 
         if (xIndex < screenModelWidth && yIndex < screenModelHeight) {
-          screenModel[xIndex][yIndex] = face[i][j];
+          screenModel[xIndex][yIndex] = face[i][j] as 1 | 0;
         }
       }
     }
